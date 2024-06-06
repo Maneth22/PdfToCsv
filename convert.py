@@ -9,17 +9,23 @@ import requests
 import pdfplumber
 import pandas as pd
 
+# get Today and Yesterday
 today = datetime.date.today()
 today_date = today.strftime("%Y%m%d")
 yesterday = today - datetime.timedelta(days=1)
 
 # Format yesterday's date as a string
 yesterday_date = yesterday.strftime('%Y%m%d')
+yesterday_date_alted = yesterday.strftime('%Y.%m.%d')
+
 print(yesterday_date)
-def download_pdf(url, save_path):
+
+
+def download_pdf(url, save_path):  # download the pdf file from meterological department
     try:
         today = datetime.date.today()
         today_date = today.strftime("%Y%m%d")
+        today_date_alted = today.strftime("%Y.%m.%d")
         # url =f'https://www.meteo.gov.lk/images/mergepdf/{yesterday_date}DD.pdf'
         # Send a GET request to the URL
         response = requests.get(url)
@@ -35,8 +41,11 @@ def download_pdf(url, save_path):
             url = f'https://www.meteo.gov.lk/images/mergepdf/{today_date}DD.pdf'
             download_pdf(url, save_path)
         elif url == f'https://www.meteo.gov.lk/images/mergepdf/{today_date}DD.pdf':
-            today_date = today.strftime("%Y.%m.%d")
-            url = f'https://www.meteo.gov.lk/images/{today_date}.pdf'
+            url = f'https://www.meteo.gov.lk/images/{today_date_alted}.pdf'
+            download_pdf(url, save_path)
+        elif url == f'https://www.meteo.gov.lk/images/{today_date_alted}.pdf':
+            #today_date = today.strftime("%Y.%m.%d")
+            url = f'https://www.meteo.gov.lk/images/{yesterday_date_alted}.pdf'
             download_pdf(url, save_path)
         else:
             print(f"Failed to download PDF. Status code: {response.status_code}")
@@ -44,16 +53,18 @@ def download_pdf(url, save_path):
         print(f"An error occurred: {e}")
 
 
+download_pdf(f'https://www.meteo.gov.lk/images/mergepdf/{yesterday_date}DD.pdf', 'report.pdf')
 
-#download_pdf(f'https://www.meteo.gov.lk/images/mergepdf/{yesterday_date}DD.pdf', 'report.pdf')
-
+# open downloaded pdf
 pdf = pdfplumber.open(r"report.pdf")
 page0 = pdf.pages[0]
+
+# Extract the content to a dataframe
 table = page0.extract_table()
 df = pd.DataFrame(table)
 print(df)
+# Save the created dataframe
 df.to_csv(f'{today}.csv', index=False)
-
 
 # fieldDic = {
 #     'Date':[],
@@ -108,9 +119,9 @@ df.to_csv(f'{today}.csv', index=False)
 # dfFull.to_csv("rainfall.csv", index=False)
 
 df = pd.read_csv(f'{today}.csv')
-
+# use the content to create the dataframe to the ordered table
 fieldDic = {
-    'Date': [today],
+    'Date': [yesterday],
     'Anuradhapura': [df.iloc[4][3]],
     'Badulla': [df.iloc[5][3]],
     'Bandarawela': [df.iloc[6][3]],
@@ -161,9 +172,15 @@ fieldDic = {
 #     return response['message']['content']
 # print(summarize_with_ollama(extract_text_from_pdf("report.pdf"),fieldDic))
 
-dfCreate =pd.DataFrame(fieldDic)
+# load the dictionary into a dataframe
+dfCreate = pd.DataFrame(fieldDic)
 print(fieldDic)
-dfFull= pd.read_csv('rainfall.csv')
-dfFull= pd.concat([dfFull,dfCreate], axis=0)
+
+# open the main dataframe
+dfFull = pd.read_csv('rainfall.csv')
+
+# concat the 2 dataframes
+dfFull = pd.concat([dfFull, dfCreate], axis=0)
+
+#Save to existing csv file
 dfFull.to_csv("rainfall.csv", index=False)
-# #dfCreate.to_csv("data.csv", index=False)
