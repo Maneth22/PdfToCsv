@@ -1,7 +1,4 @@
 # Import Module
-import ollama
-import pdftables_api
-import pandas as pd
 import numpy as np
 import datetime
 import fitz
