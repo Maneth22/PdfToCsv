@@ -37,10 +37,10 @@ def download_pdf(url, save_path):  # download the pdf file from meterological de
                 # Write the content of the response to the file
                 file.write(response.content)
             print(f"PDF downloaded successfully and saved to {save_path}")
-        elif url == f'https://www.meteo.gov.lk/images/mergepdf/{yesterday_date}DD.pdf':
-            url = f'https://www.meteo.gov.lk/images/mergepdf/{today_date}DD.pdf'
+        elif url == f'https://www.meteo.gov.lk/images/mergepdf/{yesterday_date}.pdf':
+            url = f'https://www.meteo.gov.lk/images/mergepdf/{today_date}.pdf'
             download_pdf(url, save_path)
-        elif url == f'https://www.meteo.gov.lk/images/mergepdf/{today_date}DD.pdf':
+        elif url == f'https://www.meteo.gov.lk/images/mergepdf/{today_date}.pdf':
             url = f'https://www.meteo.gov.lk/images/{today_date_alted}.pdf'
             download_pdf(url, save_path)
         elif url == f'https://www.meteo.gov.lk/images/{today_date_alted}.pdf':
@@ -53,7 +53,7 @@ def download_pdf(url, save_path):  # download the pdf file from meterological de
         print(f"An error occurred: {e}")
 
 
-download_pdf(f'https://www.meteo.gov.lk/images/mergepdf/{yesterday_date}DD.pdf', 'report.pdf')
+download_pdf(f'https://www.meteo.gov.lk/images/mergepdf/{yesterday_date}.pdf', 'report.pdf')
 
 # open downloaded pdf
 pdf = pdfplumber.open(r"report.pdf")
